@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decision_tree_from_scratch_SEU_NOME" # IMPORTANTE: Troque SEU_NOME por um nome de usuário único no PyPI
+version = "0.0.1"
+authors = [
+  { name="Seu Nome", email="seu@email.com" },
+]
+description = "Uma implementação do zero dos algoritmos de árvore de decisão ID3, C4.5 e CART."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+]
+
+[project.urls]
+Homepage = "https://github.com/SEU_USUARIO/SEU_REPOSITORIO" # Troque pelo link do seu repositório

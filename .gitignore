@@ -1,0 +1,19 @@
+# Ambientes Virtuais
+.venv/
+venv/
+*.env
+
+# Cache e arquivos compilados do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Pastas de distribuição e build
+build/
+dist/
+*.egg-info/
+
+# Arquivos de IDEs
+.vscode/
+.idea/
