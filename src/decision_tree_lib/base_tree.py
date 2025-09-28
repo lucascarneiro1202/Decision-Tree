@@ -181,3 +181,76 @@ class BaseDecisionTree:
     def _most_common_label(self, y: pd.Series):
         counter = Counter(y)
         return counter.most_common(1)[0][0]
+
+    '''
+        Start printing a Decision Tree from the root
+    '''
+    def print_tree(self):
+        if not self.root:
+            print("Decision tree was still not fitted.")
+            return
+        
+        # Drive of recursion
+        self._print_recursive(self.root)
+
+    '''
+        Auxiliary function to print a Decision Tree recursively
+        @param node - Node to be printed
+    '''
+    def _print_recursive(self, node, prefix=""):
+        if node is None:
+            return
+
+        # If the node is a leaf node, print only its predicted value
+        if node.is_leaf:
+            print(f"{prefix}└── Predict: {node.value}")
+            return
+
+        # --- CASO 2: O nó é de DECISÃO ---
+        # A forma de imprimir a regra depende do tipo de divisão.
+
+        # If the division is continuous or categorical with only two values (CART)
+        if node.threshold is not None or hasattr(node, 'left_values'):
+            
+            # Logic fot the left branch
+
+            # If the division is continuous
+            if node.threshold is not None:
+                rule_left = f"IF {node.feature} <= {node.threshold:.2f}"
+            
+            # If the division if categorical with only two values (CART)
+            else:
+                rule_left = f"IF {node.feature} in {node.left_values}"
+            
+            # Print the left branch
+            print(f"{prefix}├── {rule_left}")
+            self._print_recursive(node.branches['left'], prefix + "│   ")
+
+            # Logic for the right branch
+
+            # If the division is continuous
+            if node.threshold is not None: 
+                rule_right = f"ELSE ({node.feature} > {node.threshold:.2f})"
+
+            # If the division if categorical with only two values (CART)
+            else:
+                rule_right = f"ELSE (not in {node.left_values})"
+
+            # Print the right branch
+            print(f"{prefix}└── {rule_right}")
+            self._print_recursive(node.branches['right'], prefix + "│   ")
+
+        # If the division if categorical with more than two branches (ID3 and C4.5)
+        else:
+            print(f"{prefix}├── IF {node.feature} is:")
+            
+            # Iterate over each branch (value) of the division
+            branches = list(node.branches.items())
+            for i, (value, child_node) in enumerate(branches):
+                is_last = (i == len(branches) - 1)
+                connector = "└──" if is_last else "├──"
+                
+                # Print the node
+                print(f"{prefix}│   {connector} {value}")
+                new_prefix = prefix + "    " if is_last else prefix + "│   "
+                self._print_recursive(child_node, new_prefix)

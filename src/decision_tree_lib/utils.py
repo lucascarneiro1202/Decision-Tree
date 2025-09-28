@@ -38,7 +38,7 @@ def gini_impurity(y: pd.Series) -> float:
     # Encounter the total number of elements of a series
     total_elements = len(y)
 
-    # Calcualte the probability of each distinct value of a series
+    # Calculate the probability of each distinct value of a series
     probabilities = value_counts / total_elements
 
     # Apply the Gini Impurity formula
