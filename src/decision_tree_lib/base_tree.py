@@ -15,9 +15,10 @@ except ImportError:
     Class to represent a Node within a Decision Tree
 '''
 class Node:
-    def __init__(self, feature=None, threshold=None, branches=None, value=None, majority_class=None, is_leaf=False):
+    def __init__(self, feature=None, threshold=None, left_values=None,branches=None, value=None, majority_class=None, is_leaf=False):
         self.feature = feature               # Attribute used for comparison
         self.threshold = threshold           # Threshold to continuous values
+        self.left_values = left_values       # Dictionary of left and right sub-trees (for CART)
         self.branches = branches             # Dictionary of sub-trees (branches) for categorical values
         self.value = value                   # Class value, if it is a leaf
         self.majority_class = majority_class # Majority class present in the node
@@ -133,7 +134,7 @@ class BaseDecisionTree:
             right_child = self._build_tree(X_right, y_right, depth + 1)
 
             branches = {"left": left_child, "right": right_child}
-            
+
             return Node(feature=feature_name, left_values=left_values, branches=branches, majority_class=maj_class)
                     
         # If the division is for a categorical feature with multiple values
@@ -187,27 +188,26 @@ class BaseDecisionTree:
         # Idenfify the feature value used to divide the data
         feature_value = x[node.feature]
 
-        # If the division is categorical (based on unique values)
-        if node.threshold is None:
-            # The current feature value is used as a 'key' to find the next branch in the node's branch dictionary
-            next_node = node.branches.get(feature_value)
-
-            # If the sample 'x' has a catagorical value that do not exists in the train dataset, return None
-            if next_node is None:
-                return node.majority_class
-            
-            # If a branch was found, the trasverse continue through it
-            return self._traverse_tree(x, next_node)
-
         # If the division is continuous (based on a threshold)
-        else:
-            # Compate the current sample value with the node's threshold
+        if node.threshold is not None:
             if feature_value <= node.threshold:
-                # If it is smaller or equal, the left branch is followed
                 return self._traverse_tree(x, node.branches['left'])
             else:
-                # If it is bigger, the right branch is followed
                 return self._traverse_tree(x, node.branches['right'])
+            
+        # If the division is categorical with two values (CART)
+        elif node.left_values is not None:
+            if feature_value in node.left_values:
+                return self._traverse_tree(x, node.branches['left'])
+            else:
+                return self._traverse_tree(x, node.branches['right'])
+
+        # If the division is categorical with multiple values (ID3 and C4.5)
+        else:
+            next_node = node.branches.get(feature_value)
+            if next_node is None:
+                return node.majority_class
+            return self._traverse_tree(x, next_node)
 
     '''
         Find the most common label predicted when the Decision Tree can't be divided anymore
@@ -242,12 +242,8 @@ class BaseDecisionTree:
             print(f"{prefix}└── Predict: {node.value}")
             return
 
-        # --- CASO 2: O nó é de DECISÃO ---
-        # A forma de imprimir a regra depende do tipo de divisão.
-
         # If the division is continuous or categorical with only two values (CART)
-        if node.threshold is not None or hasattr(node, 'left_values'):
-            
+        if node.threshold is not None or node.left_values is not None:            
             # Logic fot the left branch
 
             # If the division is continuous
