@@ -112,7 +112,7 @@ class BaseDecisionTree:
             # Return a decision node with the threshold information and the binary branches
             return Node(feature=feature_name, threshold=threshold, branches=branches, majority_class=maj_class)
         
-        # If the division is for a categorical feature with only two values    
+        # If the division is for a categorical feature with only two values (CART)  
         elif "left_values" in best_split:
             # Identify the values from the left branch
             left_values = best_split["left_values"]
@@ -137,7 +137,7 @@ class BaseDecisionTree:
 
             return Node(feature=feature_name, left_values=left_values, branches=branches, majority_class=maj_class)
                     
-        # If the division is for a categorical feature with multiple values
+        # If the division is for a categorical feature with multiple values (ID3 and C4.5)
         else:
             # For each unique value of the chosen feature, a branch is created
             for value in X[feature_name].unique():
@@ -336,14 +336,14 @@ class BaseDecisionTree:
         # Driver of recursion for each children
         if not node.is_leaf:
             # If the division is binary (continuous or categorical from CART)
-            if node.threshold is not None or hasattr(node, 'left_values'):
+            if node.threshold is not None or node.left_values is not None:
                 label_left = f"<= {node.threshold:.2f}" if node.threshold is not None else "in set"
                 label_right = f"> {node.threshold:.2f}" if node.threshold is not None else "not in set"
                 
                 self._add_nodes_edges(node.branches['left'], dot, node_id, label_left)
                 self._add_nodes_edges(node.branches['right'], dot, node_id, label_right)
             
-            # If the divisio is categorical with multi-values (ID3 and C4.5)
+            # If the division is categorical with multi-values (ID3 and C4.5)
             else:
                 for value, child_node in node.branches.items():
                     self._add_nodes_edges(child_node, dot, node_id, value)
