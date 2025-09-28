@@ -3,6 +3,15 @@ import pandas as pd
 from collections import Counter
 
 '''
+    Try to import dependency to print a Decision Tree
+'''
+try:
+    import graphviz
+except ImportError:
+    print("Graphviz nnot found. To use graph visualization, install it with: pip install graphviz")
+    graphviz = None
+
+'''
     Class to represent a Node within a Decision Tree
 '''
 class Node:
@@ -254,3 +263,64 @@ class BaseDecisionTree:
                 print(f"{prefix}│   {connector} {value}")
                 new_prefix = prefix + "    " if is_last else prefix + "│   "
                 self._print_recursive(child_node, new_prefix)
+
+    '''
+        Generate a Decision Tree visualization using Graphviz library
+        @return dot - graphviz.Digraph object that can be rendered within a notebook
+    '''
+    def export_graphviz(self):
+        if graphviz is None:
+            print("Graphviz is not installed. It is not possible to generate visualization.")
+            return
+
+        if not self.root:
+            print("The Decision Tree was not fitted.")
+            return
+
+        dot = graphviz.Digraph(comment='Decision Tree', format='png')
+        self._add_nodes_edges(self.root, dot)
+        return dot
+
+    '''
+        Auxiliary function to add vexes and edged to the graph recursively
+        @param node - Current node of a Decision Tree
+        @param dot - graphviz.Digraph object that can be rendered within a notebook
+        @param parent_id - Unique ID for each node
+        @param branch_label - Label printed as a branch label
+    '''
+    def _add_nodes_edges(self, node, dot, parent_id=None, branch_label=""):
+        # If the node is not valid, interrupt the recursion in this branch
+        if node is None:
+            return
+
+        # Create a unique ID for each node to avoid collision
+        node_id = id(node)
+
+        # Create a node label
+        if node.is_leaf:
+            # Leaf node are reactangles with the prediction value
+            label = f"Predict: {node.value}"
+            dot.node(str(node_id), label, shape='box', style='filled', fillcolor='lightblue')
+        else:
+            # Decision node show the division criteria
+            label = f"Feature: {node.feature}"
+            dot.node(str(node_id), label, style='filled', fillcolor='orange')
+
+        # Add edges from parent to children
+        if parent_id is not None:
+            dot.edge(str(parent_id), str(node_id), label=str(branch_label))
+
+        # Driver of recursion for each children
+        if not node.is_leaf:
+            # If the division is binary (continuous or categorical from CART)
+            if node.threshold is not None or hasattr(node, 'left_values'):
+                label_left = f"<= {node.threshold:.2f}" if node.threshold is not None else "in set"
+                label_right = f"> {node.threshold:.2f}" if node.threshold is not None else "not in set"
+                
+                self._add_nodes_edges(node.branches['left'], dot, node_id, label_left)
+                self._add_nodes_edges(node.branches['right'], dot, node_id, label_right)
+            
+            # If the divisio is categorical with multi-values (ID3 and C4.5)
+            else:
+                for value, child_node in node.branches.items():
+                    self._add_nodes_edges(child_node, dot, node_id, value)
