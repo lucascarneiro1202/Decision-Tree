@@ -337,8 +337,21 @@ class BaseDecisionTree:
         if not node.is_leaf:
             # If the division is binary (continuous or categorical from CART)
             if node.threshold is not None or node.left_values is not None:
-                label_left = f"<= {node.threshold:.2f}" if node.threshold is not None else "in set"
-                label_right = f"> {node.threshold:.2f}" if node.threshold is not None else "not in set"
+                # Labels for continuous split
+                if node.threshold is not None:
+                    label_left = f"<= {node.threshold:.2f}"
+                    label_right = f"> {node.threshold:.2f}"
+                # Labels for categorical split (CART)
+                else: 
+                    # Convert the set of values ​​to a string
+                    values_str = str(node.left_values)
+
+                    # Truncate the string if it is too long
+                    if len(values_str) > 20:
+                        values_str = values_str[:17] + "..."
+                    
+                    label_left = f"in {values_str}"
+                    label_right = f"not in {values_str}"
                 
                 self._add_nodes_edges(node.branches['left'], dot, node_id, label_left)
                 self._add_nodes_edges(node.branches['right'], dot, node_id, label_right)
