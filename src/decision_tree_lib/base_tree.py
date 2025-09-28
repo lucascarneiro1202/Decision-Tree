@@ -15,12 +15,12 @@ except ImportError:
     Class to represent a Node within a Decision Tree
 '''
 class Node:
-    def __init__(self, feature=None, threshold=None, branches=None, value=None, is_leaf=False):
-        self.feature = feature       # Attribute used for comparison
-        self.threshold = threshold   # Threshold to continuous values
-        self.branches = branches     # Dictionary of sub-trees (branches) for categorical values
-        self.value = value           # Class value, if it is a leaf
-        majority_class = None        # Majority class present in the node
+    def __init__(self, feature=None, threshold=None, branches=None, value=None, majority_class=None, is_leaf=False):
+        self.feature = feature               # Attribute used for comparison
+        self.threshold = threshold           # Threshold to continuous values
+        self.branches = branches             # Dictionary of sub-trees (branches) for categorical values
+        self.value = value                   # Class value, if it is a leaf
+        self.majority_class = majority_class # Majority class present in the node
         self.is_leaf = is_leaf
 
 '''
