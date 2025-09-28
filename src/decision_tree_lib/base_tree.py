@@ -20,6 +20,7 @@ class Node:
         self.threshold = threshold   # Threshold to continuous values
         self.branches = branches     # Dictionary of sub-trees (branches) for categorical values
         self.value = value           # Class value, if it is a leaf
+        majority_class = None        # Majority class present in the node
         self.is_leaf = is_leaf
 
 '''
@@ -50,7 +51,7 @@ class BaseDecisionTree:
         @param X - DataFrame with all instances and all independent features
         @param y - Corresponding target labels
         @param depth - Current depth of each recursion
-        @return None - Root of the built sub-tree
+        @return Node - Root of the built sub-tree
     '''
     def _build_tree(self, X: pd.DataFrame, y: pd.Series, depth=0):
         n_samples, n_features = X.shape
@@ -101,7 +102,8 @@ class BaseDecisionTree:
                     branches[value] = self._build_tree(X_subset, y_subset, depth + 1)
             
             # Return a decision node with categorical branches
-            return Node(feature=feature_name, branches=branches)
+            maj_class = self._most_common_label(y)
+            return Node(feature=feature_name, branches=branches, majority_class=maj_class)
 
         # If the division is for a continuous feature
         else:
@@ -125,7 +127,8 @@ class BaseDecisionTree:
             branches = {"left": left_child, "right": right_child}
 
             # Return a decision node with the threshold information and the binary branches
-            return Node(feature=feature_name, threshold=threshold, branches=branches)
+            maj_class = self._most_common_label(y)
+            return Node(feature=feature_name, threshold=threshold, branches=branches, majority_class=maj_class)
 
     '''
         Find the current data's best division using different criteria
@@ -167,7 +170,7 @@ class BaseDecisionTree:
 
             # If the sample 'x' has a catagorical value that do not exists in the train dataset, return None
             if next_node is None:
-                return None
+                return node.majority_class
             
             # If a branch was found, the trasverse continue through it
             return self._traverse_tree(x, next_node)
