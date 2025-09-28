@@ -66,12 +66,12 @@ class BaseDecisionTree:
             return Node(value=leaf_value, is_leaf=True)
 
         # Condition 2: The maximum depth was reached
-        if depth >= self.max_depth:
+        if depth is not None and depth >= self.max_depth:
             leaf_value = self._most_common_label(y)
             return Node(value=leaf_value, is_leaf=True)
 
         # Condition 3: The node's number os samples is smaller then the min_samples_split
-        if n_samples < self.min_samples_split:
+        if n_samples is not None and n_samples < self.min_samples_split:
             leaf_value = self._most_common_label(y)
             return Node(value=leaf_value, is_leaf=True)
 
