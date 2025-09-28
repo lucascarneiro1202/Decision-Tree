@@ -85,28 +85,10 @@ class BaseDecisionTree:
         # If there is a good division, the Decision Tree continues to be created
         feature_name = best_split["feature"]
         branches = {}
-
-        # If the division is for a categorical feature
-        if "threshold" not in best_split:
-            # For each unique value of the chosen feature, a branch is created
-            for value in X[feature_name].unique():
-                # Filter the data to create the branch's subset
-                subset_mask = X[feature_name] == value
-                X_subset, y_subset = X[subset_mask], y[subset_mask]
-
-                # If the subset is empty, a leaf node is created with the majority class of the father
-                if X_subset.empty:
-                    branches[value] = Node(value=self._most_common_label(y), is_leaf=True)
-                else:
-                    # Driver of recursion to create the sub-tree
-                    branches[value] = self._build_tree(X_subset, y_subset, depth + 1)
-            
-            # Return a decision node with categorical branches
-            maj_class = self._most_common_label(y)
-            return Node(feature=feature_name, branches=branches, majority_class=maj_class)
+        maj_class = self._most_common_label(y)
 
         # If the division is for a continuous feature
-        else:
+        if "threshold" in best_split:
             # Identify the encountered threshold
             threshold = best_split["threshold"]
 
@@ -127,8 +109,50 @@ class BaseDecisionTree:
             branches = {"left": left_child, "right": right_child}
 
             # Return a decision node with the threshold information and the binary branches
-            maj_class = self._most_common_label(y)
             return Node(feature=feature_name, threshold=threshold, branches=branches, majority_class=maj_class)
+        
+        # If the division is for a categorical feature with only two values    
+        elif "left_values" in best_split:
+            # Identify the values from the left branch
+            left_values = best_split["left_values"]
+
+            # Create a mask to find instances with the left values identified
+            left_mask = X[feature_name].isin(left_values)
+
+            # Filter dataset based on the values identified
+            X_left, y_left = X[left_mask], y[left_mask]
+
+            # Create a mask to find instances with the right values identified
+            right_mask = ~left_mask
+
+            # Filter dataset based on the values identified
+            X_right, y_right = X[right_mask], y[right_mask]
+
+            # Driver of recursion for both branches
+            left_child = self._build_tree(X_left, y_left, depth + 1)
+            right_child = self._build_tree(X_right, y_right, depth + 1)
+
+            branches = {"left": left_child, "right": right_child}
+            
+            return Node(feature=feature_name, left_values=left_values, branches=branches, majority_class=maj_class)
+                    
+        # If the division is for a categorical feature with multiple values
+        else:
+            # For each unique value of the chosen feature, a branch is created
+            for value in X[feature_name].unique():
+                # Filter the data to create the branch's subset
+                subset_mask = X[feature_name] == value
+                X_subset, y_subset = X[subset_mask], y[subset_mask]
+
+                # If the subset is empty, a leaf node is created with the majority class of the father
+                if X_subset.empty:
+                    branches[value] = Node(value=self._most_common_label(y), is_leaf=True)
+                else:
+                    # Driver of recursion to create the sub-tree
+                    branches[value] = self._build_tree(X_subset, y_subset, depth + 1)
+            
+            # Return a decision node with categorical branches
+            return Node(feature=feature_name, branches=branches, majority_class=maj_class)
 
     '''
         Find the current data's best division using different criteria
