@@ -9,7 +9,7 @@ from . import utils
 '''
 class ID3DecisionTree(BaseDecisionTree):
     def __init__(self, max_depth=100, min_samples_split=2):
-        super().__init__(self, max_depth, min_samples_split)
+        super().__init__(max_depth, min_samples_split)
         self.criterion = 'entropy'
 
     def _calculate_impurity(self, y: pd.Series) -> float:
