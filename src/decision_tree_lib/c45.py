@@ -14,7 +14,7 @@ class C45DecisionTree(BaseDecisionTree):
         self.criterion = 'gain-ratio'
 
     def _calculate_impurity(self, y: pd.Series) -> float:
-        return utils.gain_ratio(y)
+        return utils.entropy(y)
     
     '''
         Find the current data's best division using Gain Ratio

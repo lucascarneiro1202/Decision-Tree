@@ -14,7 +14,7 @@ class CARTDecisionTree(BaseDecisionTree):
         self.criterion = 'gini'
 
     def _calculate_impurity(self, y: pd.Series) -> float:
-        return utils.gini_impurity(y)
+        return utils.entropy(y)
     
     '''
         Find the current data's best division using Gini Impurity Reduction
