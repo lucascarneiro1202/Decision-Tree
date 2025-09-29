@@ -9,7 +9,7 @@ from . import utils
     - Attribute Type: Strictly binary for all features
 '''
 class CARTDecisionTree(BaseDecisionTree):
-    def __init__(self):
+    def __init__(self, max_depth=100, min_samples_split=2):
         super().__init__(self, max_depth=100, min_samples_split=2)
         self.criterion = 'gini'
 

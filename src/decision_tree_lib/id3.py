@@ -8,7 +8,7 @@ from . import utils
     - Attribute Type: Only categorical features
 '''
 class ID3DecisionTree(BaseDecisionTree):
-    def __init__(self):
+    def __init__(self, max_depth=100, min_samples_split=2):
         super().__init__(self, max_depth=100, min_samples_split=2)
         self.criterion = 'entropy'
 
