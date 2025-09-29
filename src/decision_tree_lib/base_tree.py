@@ -317,7 +317,7 @@ class BaseDecisionTree:
             return
         
         # Use a color map to show different colors
-        cmap = plt.get_cmap('rainbow', self.n_classes_)
+        cmap = plt.get_cmap('viridis', self.n_classes_)
         colors_hex = [mcolors.to_hex(cmap(i)) for i in range(self.n_classes_)]
 
         dot = graphviz.Digraph(comment='Decision Tree', graph_attr={'rankdir': orientation}, format='png')
