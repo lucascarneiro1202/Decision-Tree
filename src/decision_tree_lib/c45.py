@@ -10,7 +10,7 @@ from . import utils
 '''
 class C45DecisionTree(BaseDecisionTree):
     def __init__(self):
-        super().__init__()
+        super().__init__(self, max_depth=100, min_samples_split=2)
         self.criterion = 'gain-ratio'
 
     def _calculate_gain_ratio(self, y: pd.Series) -> float:
