@@ -354,7 +354,7 @@ class BaseDecisionTree:
                 rule = node.feature # For ID3/C4.5, the rule is the attribute in itself
 
             label = (f"{rule}\n"
-                     f"{self.criterion} = {node.impurity:.3f}\n"
+                     f"{self.criterion} = {node.criterion:.3f}\n"
                      f"samples = {node.samples}\n"
                      f"value = {node.class_dist}\n"
                      f"class = {node.majority_class}")
