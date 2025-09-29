@@ -10,7 +10,7 @@ from . import utils
 '''
 class CARTDecisionTree(BaseDecisionTree):
     def __init__(self, max_depth=100, min_samples_split=2):
-        super().__init__(self, max_depth=100, min_samples_split=2)
+        super().__init__(self, max_depth, min_samples_split)
         self.criterion = 'gini'
 
     def _calculate_gain_ratio(self, y: pd.Series) -> float:
