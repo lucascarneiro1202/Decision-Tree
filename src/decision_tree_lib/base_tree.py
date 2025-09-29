@@ -395,7 +395,7 @@ class BaseDecisionTree:
                     label_right = f"not in {values_str}"
                 
                 self._add_nodes_edges(node.branches['left'], dot, colors, node_id, label_left)
-                self._add_nodes_edges(node.branches['right'], dot, node_id, label_right)
+                self._add_nodes_edges(node.branches['right'], dot, colors, node_id, label_right)
             
             # If the division is categorical with multi-values (ID3 and C4.5)
             else:
