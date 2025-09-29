@@ -65,22 +65,31 @@ class BaseDecisionTree:
         n_samples, n_features = X.shape
         n_labels = len(np.unique(y))
 
+        n_samples = len(y)
+        if n_samples == 0:
+            return None 
+            
+        n_labels = len(y.unique())
+        class_dist = y.value_counts().to_dict()
+        maj_class = self._most_common_label(y)
+        current_impurity = self._calculate_impurity(y)
+
         # If any of the following conditions are true, a leaf node is created and the recursion in this branch is interrupted 
 
         # Condition 1: The node is pure (all samples belong to the same class)
         if n_labels == 1:
             leaf_value = y.iloc[0]
-            return Node(value=leaf_value, is_leaf=True, samples=n_samples, class_dist=class_dist)
+            return Node(value=leaf_value, is_leaf=True, samples=n_samples, class_dist=class_dist, impurity=current_impurity)
 
         # Condition 2: The maximum depth was reached
         if self.max_depth is not None and depth >= self.max_depth:
             leaf_value = self._most_common_label(y)
-            return Node(value=leaf_value, is_leaf=True, samples=n_samples, class_dist=class_dist)
+            return Node(value=leaf_value, is_leaf=True, samples=n_samples, class_dist=class_dist, impurity=current_impurity)
 
         # Condition 3: The node's number os samples is smaller then the min_samples_split
         if self.min_samples_split is not None and n_samples < self.min_samples_split:
             leaf_value = self._most_common_label(y)
-            return Node(value=leaf_value, is_leaf=True, samples=n_samples, class_dist=class_dist)
+            return Node(value=leaf_value, is_leaf=True, samples=n_samples, class_dist=class_dist, impurity=current_impurity)
 
         # Find the best split with the abstract method implemented by the child classes (ID3, C4.5 and CART)
         best_split = self._find_best_split(X, y)
@@ -88,14 +97,11 @@ class BaseDecisionTree:
         # If there is no division that enhances the model, the recursion is interrupted in this branch
         if not best_split or best_split.get('gain', -1) <= 0:
             leaf_value = self._most_common_label(y)
-            return Node(value=leaf_value, is_leaf=True, samples=n_samples, class_dist=class_dist)
+            return Node(value=leaf_value, is_leaf=True, samples=n_samples, class_dist=class_dist, impurity=current_impurity)
             
         # If there is a good division, the Decision Tree continues to be created
         feature_name = best_split["feature"]
         branches = {}
-        maj_class = self._most_common_label(y)
-        n_samples = len(y)
-        class_dist = y.value_counts().to_dict()
 
         # If the division is for a continuous feature
         if "threshold" in best_split:
@@ -119,7 +125,7 @@ class BaseDecisionTree:
             branches = {"left": left_child, "right": right_child}
 
             # Return a decision node with the threshold information and the binary branches
-            return Node(feature=feature_name, threshold=threshold, branches=branches, majority_class=maj_class, samples=n_samples, class_dist=class_dist)
+            return Node(feature=feature_name, threshold=threshold, branches=branches, majority_class=maj_class, samples=n_samples, class_dist=class_dist, impurity=current_impurity)
         
         # If the division is for a categorical feature with only two values (CART)  
         elif "left_values" in best_split:
@@ -144,7 +150,7 @@ class BaseDecisionTree:
 
             branches = {"left": left_child, "right": right_child}
 
-            return Node(feature=feature_name, left_values=left_values, branches=branches, majority_class=maj_class, samples=n_samples, class_dist=class_dist)
+            return Node(feature=feature_name, left_values=left_values, branches=branches, majority_class=maj_class, samples=n_samples, class_dist=class_dist, impurity=current_impurity)
                     
         # If the division is for a categorical feature with multiple values (ID3 and C4.5)
         else:
@@ -162,7 +168,7 @@ class BaseDecisionTree:
                     branches[value] = self._build_tree(X_subset, y_subset, depth + 1)
             
             # Return a decision node with categorical branches
-            return Node(feature=feature_name, branches=branches, majority_class=maj_class, samples=n_samples, class_dist=class_dist)
+            return Node(feature=feature_name, branches=branches, majority_class=maj_class, samples=n_samples, class_dist=class_dist, impurity=current_impurity)
 
     '''
         Find the current data's best division using different criteria
