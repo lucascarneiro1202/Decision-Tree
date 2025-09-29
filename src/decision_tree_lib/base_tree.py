@@ -66,7 +66,7 @@ class BaseDecisionTree:
             return Node(value=leaf_value, is_leaf=True)
 
         # Condition 2: The maximum depth was reached
-        if self.depth is not None and depth >= self.max_depth:
+        if self.max_depth is not None and depth >= self.max_depth:
             leaf_value = self._most_common_label(y)
             return Node(value=leaf_value, is_leaf=True)
 
