@@ -9,6 +9,13 @@ from . import utils
     - Attribute Type: Strictly binary for all features
 '''
 class CARTDecisionTree(BaseDecisionTree):
+    def __init__(self):
+        super().__init__()
+        self.criterion = 'gini'
+
+    def _calculate_gain_ratio(self, y: pd.Series) -> float:
+        return utils.gini_impurity(y)
+    
     '''
         Find the current data's best division using Gini Impurity Reduction
 

@@ -8,6 +8,13 @@ from . import utils
     - Attribute Type: Only categorical features
 '''
 class ID3DecisionTree(BaseDecisionTree):
+    def __init__(self):
+        super().__init__()
+        self.criterion = 'entropy'
+
+    def _calculate_impurity(self, y: pd.Series) -> float:
+        return utils.entropy(y)
+
     '''
         Find the current data's best division using Information Gain
 

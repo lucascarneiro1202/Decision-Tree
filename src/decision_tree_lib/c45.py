@@ -9,6 +9,13 @@ from . import utils
     - Attribute Type: Categorical and continuous features
 '''
 class C45DecisionTree(BaseDecisionTree):
+    def __init__(self):
+        super().__init__()
+        self.criterion = 'gain-ratio'
+
+    def _calculate_gain_ratio(self, y: pd.Series) -> float:
+        return utils.gain_ratio(y)
+    
     '''
         Find the current data's best division using Gain Ratio
 
