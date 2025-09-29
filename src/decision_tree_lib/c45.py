@@ -13,7 +13,7 @@ class C45DecisionTree(BaseDecisionTree):
         super().__init__(max_depth, min_samples_split)
         self.criterion = 'gain-ratio'
 
-    def _calculate_gain_ratio(self, y: pd.Series) -> float:
+    def _calculate_impurity(self, y: pd.Series) -> float:
         return utils.gain_ratio(y)
     
     '''

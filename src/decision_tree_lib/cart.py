@@ -13,7 +13,7 @@ class CARTDecisionTree(BaseDecisionTree):
         super().__init__(max_depth, min_samples_split)
         self.criterion = 'gini'
 
-    def _calculate_gain_ratio(self, y: pd.Series) -> float:
+    def _calculate_impurity(self, y: pd.Series) -> float:
         return utils.gini_impurity(y)
     
     '''
